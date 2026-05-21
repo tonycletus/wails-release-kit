@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tonycletus/wails-release-kit.git"
+    "url": "git+https://github.com/tonycletus/wails-release-kit.git"
   },
   "publishConfig": {
     "access": "public"
@@ -27,7 +27,7 @@
     "inno-setup"
   ],
   "bin": {
-    "wails-release-kit": "./dist/cli.js"
+    "wails-release-kit": "dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
