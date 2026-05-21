@@ -1,0 +1,14 @@
+name: Wails Release Kit
+description: Scaffold Wails desktop release automation.
+inputs:
+  app:
+    description: Application display name.
+    required: true
+  binary:
+    description: Binary name.
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: npx @tonycletus/wails-release-kit init --app "${{ inputs.app }}" --binary "${{ inputs.binary }}"
