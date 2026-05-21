@@ -2,6 +2,10 @@
 
 Scaffold release automation for Go/Wails desktop apps.
 
+This CLI creates the release files a Wails project usually needs when you want
+GitHub Actions to build desktop installers for Windows, macOS, and Linux from
+the same source repository.
+
 It generates:
 
 - GitHub Actions workflow for Windows `.exe` installer, macOS `.dmg`, Linux `.deb`
@@ -15,16 +19,35 @@ It generates:
 ```bash
 npm install -D @tonycletus/wails-release-kit
 pnpm add -D @tonycletus/wails-release-kit
+yarn add -D @tonycletus/wails-release-kit
 ```
 
 ## Init a Wails project
 
 ```bash
-wails-release-kit init --app PeerDrift --binary PeerDrift --repo tonycletus/peerdrift
+npx wails-release-kit init --app "My App" --binary "my-app" --repo your-name/my-app
 ```
 
-Then commit and push. Every push to `main` will build desktop packages and
-publish/update a GitHub Release for the current `package.json` version.
+Run that command in the root of an existing Wails project. It writes:
+
+- `.github/workflows/desktop-release.yml`
+- `installer/windows/App.iss`
+- `scripts/prepare-windows-icon-resource.ps1`
+- `RELEASE-DOWNLOADS.md`
+
+Then commit and push. Every push to `main` builds desktop packages and creates
+or updates a GitHub Release for the current `package.json` version.
+
+## Requirements
+
+- A Wails v2 app written in Go
+- Node.js 20 or newer
+- A working `npm run build:desktop` script
+- A `public/icon-512.png` source icon for Windows installer/icon generation
+- GitHub Actions enabled on the repository
+
+The generated workflow installs the operating system dependencies it needs on
+GitHub-hosted runners.
 
 ## Stable Download URLs
 
@@ -36,7 +59,17 @@ https://github.com/<owner>/<repo>/releases/latest/download/<AppName>-macos-arm64
 https://github.com/<owner>/<repo>/releases/latest/download/<app-name>-linux-amd64.deb
 ```
 
+Each release also includes versioned assets so you can keep permanent links for
+older builds.
+
+## What It Does Not Do
+
+This kit does not buy or configure code signing certificates. It also does not
+complete Apple notarization for you. The generated workflow is intended as a
+practical unsigned/community release baseline that you can extend when your app
+needs commercial distribution requirements.
+
 ## Notes
 
-This kit does not yet handle paid code signing certificates or Apple
-notarization. It produces unsigned/community release builds.
+Always review generated workflow files before publishing a production app. They
+are meant to give you a strong starting point, not hide your release process.

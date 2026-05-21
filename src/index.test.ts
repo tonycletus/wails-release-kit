@@ -14,14 +14,18 @@ describe("wails-release-kit", () => {
     try {
       const result = await initWailsReleaseKit({
         cwd: dir,
-        app: "PeerDrift",
-        binary: "PeerDrift",
-        repo: "tonycletus/peerdrift",
+        app: "My App",
+        binary: "my-app",
+        repo: "your-name/my-app",
       });
       expect(result.files.length).toBeGreaterThan(3);
       const workflow = await readFile(path.join(dir, ".github/workflows/desktop-release.yml"), "utf8");
+      const inno = await readFile(path.join(dir, "installer/windows/App.iss"), "utf8");
+      const iconScript = await readFile(path.join(dir, "scripts/prepare-windows-icon-resource.ps1"), "utf8");
       expect(workflow).toContain("UniformTypeIdentifiers");
-      expect(workflow).toContain("PeerDriftSetup.exe");
+      expect(workflow).toContain("MyAppSetup.exe");
+      expect(inno).toContain("SetupIconFile=app.ico");
+      expect(iconScript).toContain("installer\\windows\\app.ico");
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

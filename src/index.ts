@@ -25,7 +25,7 @@ export async function initWailsReleaseKit(options: InitOptions): Promise<InitRes
   const files = [
     [".github/workflows/desktop-release.yml", workflowTemplate({ app, artifactName, binary, slug, mainBranch })],
     ["installer/windows/App.iss", innoSetupTemplate({ app, artifactName, binary })],
-    ["scripts/prepare-windows-icon-resource.ps1", windowsIconResourceScript()],
+    ["scripts/prepare-windows-icon-resource.ps1", windowsIconResourceScript(app)],
     ["RELEASE-DOWNLOADS.md", downloadsDocTemplate({ artifactName, repo, slug })],
   ] as const;
 
@@ -282,7 +282,7 @@ OutputDir=..\\..\\build\\installer
 OutputBaseFilename=${artifactName}Setup
 Compression=lzma
 SolidCompression=yes
-SetupIconFile=peerdrift.ico
+SetupIconFile=app.ico
 UninstallDisplayIcon={app}\\{#MyAppExeName}
 
 [Tasks]
@@ -290,28 +290,28 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\\..\\build\\bin\\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "peerdrift.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "app.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\\{#MyAppName}"; Filename: "{app}\\{#MyAppExeName}"; IconFilename: "{app}\\peerdrift.ico"
-Name: "{userdesktop}\\{#MyAppName}"; Filename: "{app}\\{#MyAppExeName}"; IconFilename: "{app}\\peerdrift.ico"; Tasks: desktopicon
+Name: "{group}\\{#MyAppName}"; Filename: "{app}\\{#MyAppExeName}"; IconFilename: "{app}\\app.ico"
+Name: "{userdesktop}\\{#MyAppName}"; Filename: "{app}\\{#MyAppExeName}"; IconFilename: "{app}\\app.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
 `;
 }
 
-function windowsIconResourceScript(): string {
+function windowsIconResourceScript(app: string): string {
   return `$ErrorActionPreference = "Stop"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-npx --yes @tonycletus/app-icon-pipeline --input (Join-Path $repoRoot "public\\icon-512.png") --out (Join-Path $repoRoot "public") --name "App" --ico (Join-Path $repoRoot "installer\\windows\\peerdrift.ico")
+npx --yes @tonycletus/app-icon-pipeline --input (Join-Path $repoRoot "public\\icon-512.png") --out (Join-Path $repoRoot "public") --name "${app}" --ico (Join-Path $repoRoot "installer\\windows\\app.ico")
 $rsrc = Get-Command rsrc -ErrorAction SilentlyContinue
 if (-not $rsrc) {
   go install github.com/akavel/rsrc@v0.10.2
   $env:Path = "$((go env GOPATH))\\bin;$env:Path"
   $rsrc = Get-Command rsrc -ErrorAction Stop
 }
-& $rsrc.Source -ico (Join-Path $repoRoot "installer\\windows\\peerdrift.ico") -o (Join-Path $repoRoot "rsrc_windows_amd64.syso")
+& $rsrc.Source -ico (Join-Path $repoRoot "installer\\windows\\app.ico") -o (Join-Path $repoRoot "rsrc_windows_amd64.syso")
 `;
 }
 
